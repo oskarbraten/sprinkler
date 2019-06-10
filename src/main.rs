@@ -8,8 +8,9 @@ use std::sync::{mpsc, Arc, Mutex};
 use actix_web::{HttpServer, App, web, middleware, HttpRequest};
 use actix_web::web::{Data, Json};
 
+mod time;
+mod schedule;
 mod configuration;
-mod timer;
 
 use configuration::Configuration;
 
@@ -70,7 +71,7 @@ fn main() -> io::Result<()> {
     // Start irrigation system:
     {
         let c = config.clone();
-        thread::spawn(move || timer::timer(c, rx, TICKRATE));
+        thread::spawn(move || schedule::scheduler(c, rx, TICKRATE));
     }
 
     // Start webserver:

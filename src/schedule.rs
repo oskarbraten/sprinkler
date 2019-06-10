@@ -1,13 +1,32 @@
-
-use chrono::prelude::*;
-use std::sync::mpsc::Receiver;
-
 use std::thread;
+use std::sync::mpsc::Receiver;
 use std::time::Duration;
+use std::time::{SystemTime, UNIX_EPOCH};
 
-use super::configuration::Configuration;
+use serde::{Deserialize, Serialize};
 
-pub fn timer(mut config: Configuration, recv: Receiver<Configuration>, tickrate: u64) {
+use super::time::{Moment, Interval};
+use super::Configuration;
+
+#[derive(Clone, Serialize, Deserialize)]
+pub struct Schedule {
+    pub id: u64,
+    pub events: Vec<Interval>
+}
+
+impl Schedule {
+    pub fn in_interval(&self, t: Moment) -> bool {
+        for interval in self.events.iter() {
+            if interval.contains(t) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickrate: u64) {
 
     let mut open = false;
 
@@ -28,17 +47,17 @@ pub fn timer(mut config: Configuration, recv: Receiver<Configuration>, tickrate:
             _ => {}
         }
 
-        let now = Local::now().time();
+        let now = Moment::now();
         
-        if !config.disabled {
+        if !config.enabled {
 
-            let in_activation = config.in_activation(&now);
-            if in_activation && !open {
+            let in_interval = config.schedule.in_interval(now);
+            if in_interval && !open {
                 open = true;
 
                 // Do GPIO stuff here.
                 println!("Activated GPIO");
-            } else if !in_activation && open {
+            } else if !in_interval && open {
                 open = false;
 
                 // Do GPIO stuff here.
@@ -51,7 +70,7 @@ pub fn timer(mut config: Configuration, recv: Receiver<Configuration>, tickrate:
             println!("Sprinkler is disabled, zZzzZ...");
         }
 
-        let t = Local::now().timestamp_subsec_millis() as u64 % tickrate;
+        let t = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().subsec_millis() as u64 % tickrate;
         thread::sleep(Duration::from_millis(tickrate - t));
     }
 }
