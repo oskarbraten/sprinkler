@@ -1,0 +1,54 @@
+{
+    "disabled": false,
+    "activations": [
+        {
+            "time": "00:55:00",
+            "duration": {
+                "secs": 60,
+                "nanos": 0
+            }
+        },
+        {
+            "time": "00:55:05",
+            "duration": {
+                "secs": 60,
+                "nanos": 0
+            }
+        },
+        {
+            "time": "01:21:00",
+            "duration": {
+                "secs": 10,
+                "nanos": 0
+            }
+        },
+        {
+            "time": "01:24:00",
+            "duration": {
+                "secs": 10,
+                "nanos": 0
+            }
+        },
+        {
+            "time": "02:17:00",
+            "duration": {
+                "secs": 10,
+                "nanos": 0
+            }
+        },
+        {
+            "time": "08:00:00",
+            "duration": {
+                "secs": 60,
+                "nanos": 0
+            }
+        },
+        {
+            "time": "23:59:00",
+            "duration": {
+                "secs": 45,
+                "nanos": 0
+            }
+        }
+    ]
+}
