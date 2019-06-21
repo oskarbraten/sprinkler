@@ -14,10 +14,11 @@ impl Configuration {
         Configuration {
             enabled: false,
             schedule: Schedule {
-                id: 0,
+                id: 17,
                 events: vec![
                     Interval::new(Moment::new(16, 00, 00), Moment::new(16, 00, 05)),
                     Interval::new(Moment::new(16, 01, 00), Moment::new(16, 01, 10)),
+                    Interval::new(Moment::new(20, 40, 00), Moment::new(20, 40, 10)),
                 ]
             }
         }
