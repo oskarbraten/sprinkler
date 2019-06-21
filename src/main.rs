@@ -14,7 +14,7 @@ mod configuration;
 
 use configuration::Configuration;
 
-const ADDRESS: &str = "127.0.0.1:8088";
+const ADDRESS: &str = "0.0.0.0:80";
 const TICKRATE: u64 = 1000;
 
 fn index() -> &'static str {
@@ -75,7 +75,7 @@ fn main() -> io::Result<()> {
     }
 
     // Start webserver:
-    println!("Server running on: {}", ADDRESS);
+    println!("Starting server on: {}", ADDRESS);
     println!("URL: http://{}", ADDRESS);
 
     std::env::set_var("RUST_LOG", "actix_web=info");
@@ -96,7 +96,7 @@ fn main() -> io::Result<()> {
             )
     })
     .bind(ADDRESS)
-    .unwrap()
+    .expect("Unable to start HTTP-server, you may have to run it as root.")
     .start();
 
     sys.run()
