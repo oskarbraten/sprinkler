@@ -3,6 +3,9 @@ use std::sync::mpsc::Receiver;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+use rppal::gpio::Gpio;
+use rppal::system::DeviceInfo;
+
 use serde::{Deserialize, Serialize};
 
 use super::time::{Moment, Interval};
@@ -10,7 +13,7 @@ use super::Configuration;
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Schedule {
-    pub id: u64,
+    pub id: u8,
     pub events: Vec<Interval>
 }
 
@@ -28,6 +31,11 @@ impl Schedule {
 
 pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickrate: u64) {
 
+    println!("Sprinkler scheduler running on device: {}.", DeviceInfo::new().expect("Unable to get RPI device info.").model());
+
+    let gpio = Gpio::new().expect("Unable to construct GPIO.");
+    let mut pin = gpio.get(config.schedule.id).expect("Unable to get pin.").into_output();
+
     let mut open = false;
 
     loop {
@@ -38,8 +46,10 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
                 config = updated_config;
 
                 if open {
-                    // Handle interruption. Maybe close the valve?
-                    println!("Deactivate GPIO.");
+                    // Configuration was updated. Schedule may have changed, deactivate pin.
+                    pin.set_low();
+                    open = false;
+                    println!("Deactivated pin: {}", config.schedule.id);
                 }
 
                 println!("Configuration was updated.");
@@ -49,19 +59,20 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
 
         let now = Moment::now();
         
-        if !config.enabled {
+        if config.enabled {
 
             let in_interval = config.schedule.in_interval(now);
             if in_interval && !open {
                 open = true;
 
-                // Do GPIO stuff here.
-                println!("Activated GPIO");
+                pin.set_high();
+                println!("Activated pin: {}", config.schedule.id);
+
             } else if !in_interval && open {
                 open = false;
 
-                // Do GPIO stuff here.
-                println!("Deactivated GPIO");
+                pin.set_low();
+                println!("Deactivated pin: {}", config.schedule.id);
             }
 
             println!("Open: {}", open);
