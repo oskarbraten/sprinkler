@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Sprinkler irrigation system</title>
+    <!-- development version, includes helpful console warnings -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <div v-if="connected">
+
+            <h1>
+                <span v-if="configuration.enabled">Sprinkler is on</span>
+                <span v-else>Sprinkler is off</span>
+            </h1>
+
+            <button v-on:click="toggle">
+                <span v-if="configuration.enabled">Turn off</span>
+                <span v-else>Turn on</span>
+            </button>
+
+            <h2>Schedule:</h2>
+            <ol>
+                <li v-for="(event, index) in configuration.schedule.events">
+
+                    <label :for="'from-' + index">From: </label>
+                    <input :id="'from-' + index" :name="'from-' + index" type="time" step="1" v-model="event.from">
+
+                    {{ event.from }} - {{ event.to }}
+                </li>
+            </ol>
+        </div>
+        <p v-else>Unable to connect to the Sprinkler irrigation system.</p>
+    </div>
+    <script type="module" src="js/index.js"></script>
+</body>
+
+</html>
