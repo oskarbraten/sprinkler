@@ -7,6 +7,7 @@ use std::sync::{mpsc, Arc, Mutex};
 
 use actix_web::{HttpServer, App, web, middleware, HttpRequest};
 use actix_web::web::{Data, Json};
+use actix_files as fs;
 
 mod time;
 mod schedule;
@@ -14,12 +15,14 @@ mod configuration;
 
 use configuration::Configuration;
 
-const ADDRESS: &str = "0.0.0.0:80";
-const TICKRATE: u64 = 1000;
+#[cfg(debug_assertions)]
+const ADDRESS: &str = "0.0.0.0:8080";
 
-fn index() -> &'static str {
-    "Hello, sprinkler!"
-}
+#[cfg(not(debug_assertions))]
+const ADDRESS: &str = "0.0.0.0:80";
+
+
+const TICKRATE: u64 = 1000;
 
 fn get_config(_req: HttpRequest, data: Data<Arc<Mutex<Configuration>>>) -> Json<Configuration> {
     Json(data.lock().unwrap().clone())
@@ -88,12 +91,12 @@ fn main() -> io::Result<()> {
             .data(Arc::new(Mutex::new(config.clone())))
             .data(tx.clone())
             .wrap(middleware::Logger::default())
-            .service(web::resource("/").route(web::get().to(index)))
             .service(
                 web::resource("/configuration")
                     .route(web::get().to(get_config))
                     .route(web::put().to(put_config)),
             )
+            .service(fs::Files::new("/", "./frontend").index_file("index.html"))
     })
     .bind(ADDRESS)
     .expect("Unable to start HTTP-server, you may have to run it as root.")

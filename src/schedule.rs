@@ -3,7 +3,10 @@ use std::sync::mpsc::Receiver;
 use std::time::Duration;
 use std::time::{SystemTime, UNIX_EPOCH};
 
+#[cfg(not(debug_assertions))]
 use rppal::gpio::Gpio;
+
+#[cfg(not(debug_assertions))]
 use rppal::system::DeviceInfo;
 
 use serde::{Deserialize, Serialize};
@@ -31,9 +34,13 @@ impl Schedule {
 
 pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickrate: u64) {
 
+    #[cfg(not(debug_assertions))]
     println!("Sprinkler scheduler running on device: {}.", DeviceInfo::new().expect("Unable to get RPI device info.").model());
 
+    #[cfg(not(debug_assertions))]
     let gpio = Gpio::new().expect("Unable to construct GPIO.");
+
+    #[cfg(not(debug_assertions))]
     let mut pin = gpio.get(config.schedule.id).expect("Unable to get pin.").into_output();
 
     let mut open = false;
@@ -47,7 +54,10 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
 
                 if open {
                     // Configuration was updated. Schedule may have changed, deactivate pin.
+
+                    #[cfg(not(debug_assertions))]
                     pin.set_low();
+                    
                     open = false;
                     println!("Deactivated pin: {}", config.schedule.id);
                 }
@@ -65,13 +75,17 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
             if in_interval && !open {
                 open = true;
 
+                #[cfg(not(debug_assertions))]
                 pin.set_high();
+                
                 println!("Activated pin: {}", config.schedule.id);
 
             } else if !in_interval && open {
                 open = false;
 
+                #[cfg(not(debug_assertions))]
                 pin.set_low();
+
                 println!("Deactivated pin: {}", config.schedule.id);
             }
 
