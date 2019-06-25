@@ -30,6 +30,10 @@ impl Schedule {
 
         return false;
     }
+
+    pub fn sort(&mut self) {
+        self.events.sort();
+    }
 }
 
 pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickrate: u64) {
@@ -89,9 +93,11 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
                 println!("Deactivated pin: {}", config.schedule.id);
             }
 
+            #[cfg(debug_assertions)]
             println!("Open: {}", open);
 
         } else {
+            #[cfg(debug_assertions)]
             println!("Sprinkler is disabled, zZzzZ...");
         }
 
