@@ -2,41 +2,83 @@
 <html>
 
 <head>
-    <title>Sprinkler irrigation system</title>
+    <title>Sprinkler</title>
+    <meta charset="utf-8">
     <!-- development version, includes helpful console warnings -->
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 
 <body>
-    <div id="app">
+    <div id="app" class="container">
         <div v-if="connected">
+            <div class="row border-bottom pt-4 pb-2">
+                <div class="col">
+                    <h3>Irrigation System</h3>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col">
+                    <p>
+                        <span class="text-success" v-if="enabled">The irrigation system is enabled.</span>
+                        <span class="text-secondary" v-else>The irrigation system is disabled.</span>
+                    </p>
+                </div>
+            </div>
+            <div class="row pt-2">
+                <div class="col">
+                    <h4>Settings</h4>
 
-            <h1>
-                <span v-if="enabled">Sprinkler is on</span>
-                <span v-else>Sprinkler is off</span>
-            </h1>
+                    <div class="form-group form-check mt-3">
+                        <input id="enabled-checkbox" type="checkbox" class="form-check-input"
+                            v-model="configuration.enabled">
+                        <label class="form-check-label" for="enabled-checkbox">Enabled</label>
+                    </div>
 
-            <input type="checkbox" id="checkbox" v-model="configuration.enabled">
-            <label for="checkbox">
-                <span v-if="configuration.enabled">On</span>
-                <span v-else>Off</span>
-            </label>
-
-            <h2>Schedule:</h2>
-            <ul>
-                <li v-for="(event, index) in configuration.schedule.events">
-
-                    <label :for="'from-' + index">From: </label>
-                    <input :id="'from-' + index" :name="'from-' + index" type="time" step="1" v-model="event.from">
-
-                    <label :for="'to-' + index">To: </label>
-                    <input :id="'to-' + index" :name="'to-' + index" type="time" step="1" v-model="event.to">
-
-                    <p>{{ event.from }} - {{ event.to }}</p>
-                </li>
-            </ul>
-
-            <button v-on:click="update">Save settings</button>
+                    <h5>Watering schedule</h5>
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">From</th>
+                                    <th scope="col">To</th>
+                                    <th scope="col" colspan="2">Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(event, index) in configuration.schedule.events">
+                                    <td scope="row">
+                                        <input class="form-control" :id="'from-' + index" :name="'from-' + index"
+                                            type="time" step="1" v-model="event.from">
+                                    </td>
+                                    <td scope="row">
+                                        <input class="form-control" :id="'to-' + index" :name="'to-' + index"
+                                            type="time" step="1" v-model="event.to">
+                                    </td>
+                                    <td scope="row" class="align-middle text-justify">
+                                        <duration :from="event.from" :to="event.to"></duration>
+                                    </td>
+                                    <td scope="row" class="text-right">
+                                        <button type="button" class="btn btn-outline-secondary"
+                                            v-on:click="remove(index)">Remove</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4" class="text-right">
+                                        <button type="button" class="btn btn-outline-success" v-on:click="add">Add new</button>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" v-on:click="update">Save settings</button>
+                    </div>
+                </div>
+            </div>
         </div>
         <p v-else>Unable to connect to the Sprinkler irrigation system.</p>
     </div>

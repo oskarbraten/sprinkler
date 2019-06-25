@@ -12,6 +12,28 @@ function timeToMs(time) {
     return (h * 60 * 60 * 1000) + (m * 60 * 1000) + (s * 1000);
 }
 
+Vue.component('duration', {
+    template: '<span>{{duration}}</span>',
+    props: {
+        from: {
+            type: String,
+            required: true
+        },
+        to: {
+            type: String,
+            required: true
+        }
+    },
+    computed: {
+        duration: function () {
+            const fromAsMs = timeToMs(this.from);
+            const toAsMs = timeToMs(this.to);
+
+            return msToTime(toAsMs - fromAsMs);
+        }
+    }
+})
+
 const app = new Vue({
     el: '#app',
     data: {
@@ -68,6 +90,12 @@ const app = new Vue({
                     this.enabled = this.configuration.enabled;
                 })
                 .catch(error => console.log(error));
+        },
+        add() {
+            this.configuration.schedule.events.push({ from: '10:00:00', to: '10:00:30' });
+        },
+        remove(index) {
+            this.configuration.schedule.events.splice(index, 1);
         }
     }
 });
