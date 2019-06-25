@@ -2,6 +2,8 @@
 
 TARGET=pi@sprinkler.local
 
+echo "Deployment target: $TARGET"
+
 echo "Building."
 cargo build --release --target=armv7-unknown-linux-gnueabihf
 
@@ -15,8 +17,14 @@ echo "Stopping sprinkler service."
 ssh -q -o ControlPath=$SSH_SOCKET -t -p 22 $TARGET "sudo systemctl stop sprinkler"
 
 # Transfer executable using SCP.
-echo "Deploying executable."
+echo "Transferring executable..."
 scp -o ControlPath=$SSH_SOCKET ./target/armv7-unknown-linux-gnueabihf/release/sprinkler $TARGET:~/sprinkler/sprinkler
+
+# Transfer frontend using SCP.
+echo "Transferring frontend files..."
+ssh -q -o ControlPath=$SSH_SOCKET -t -p 22 $TARGET "rm -rf ~/sprinkler/frontend"
+ssh -q -o ControlPath=$SSH_SOCKET -t -p 22 $TARGET "mkdir ~/sprinkler/frontend"
+scp -o ControlPath=$SSH_SOCKET -r ./frontend $TARGET:~/sprinkler/frontend
 
 # Restarting service:
 echo "Starting sprinkler service."
