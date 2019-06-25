@@ -12,25 +12,31 @@
         <div v-if="connected">
 
             <h1>
-                <span v-if="configuration.enabled">Sprinkler is on</span>
+                <span v-if="enabled">Sprinkler is on</span>
                 <span v-else>Sprinkler is off</span>
             </h1>
 
-            <button v-on:click="toggle">
-                <span v-if="configuration.enabled">Turn off</span>
-                <span v-else>Turn on</span>
-            </button>
+            <input type="checkbox" id="checkbox" v-model="configuration.enabled">
+            <label for="checkbox">
+                <span v-if="configuration.enabled">On</span>
+                <span v-else>Off</span>
+            </label>
 
             <h2>Schedule:</h2>
-            <ol>
+            <ul>
                 <li v-for="(event, index) in configuration.schedule.events">
 
                     <label :for="'from-' + index">From: </label>
                     <input :id="'from-' + index" :name="'from-' + index" type="time" step="1" v-model="event.from">
 
-                    {{ event.from }} - {{ event.to }}
+                    <label :for="'to-' + index">To: </label>
+                    <input :id="'to-' + index" :name="'to-' + index" type="time" step="1" v-model="event.to">
+
+                    <p>{{ event.from }} - {{ event.to }}</p>
                 </li>
-            </ol>
+            </ul>
+
+            <button v-on:click="update">Save settings</button>
         </div>
         <p v-else>Unable to connect to the Sprinkler irrigation system.</p>
     </div>
