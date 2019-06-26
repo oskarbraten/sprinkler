@@ -24,7 +24,7 @@ scp -o ControlPath=$SSH_SOCKET ./target/armv7-unknown-linux-gnueabihf/release/sp
 echo "Transferring frontend files..."
 ssh -q -o ControlPath=$SSH_SOCKET -t -p 22 $TARGET "rm -rf ~/sprinkler/frontend"
 ssh -q -o ControlPath=$SSH_SOCKET -t -p 22 $TARGET "mkdir ~/sprinkler/frontend"
-scp -o ControlPath=$SSH_SOCKET -r ./frontend $TARGET:~/sprinkler/frontend
+scp -o ControlPath=$SSH_SOCKET -r ./frontend $TARGET:~/sprinkler/
 
 # Restarting service:
 echo "Starting sprinkler service."
