@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TARGET=pi@sprinkler.local
+TARGET=pi@192.168.1.12
 
 echo "Deployment target: $TARGET"
 

@@ -19,7 +19,6 @@ const ADDRESS: &str = "0.0.0.0:8080";
 #[cfg(not(debug_assertions))]
 const ADDRESS: &str = "0.0.0.0:80";
 
-
 const TICKRATE: u64 = 1000;
 
 fn get_config(_req: HttpRequest) -> io::Result<fs::NamedFile> {
@@ -60,7 +59,6 @@ fn main() -> io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            //.data(Arc::new(Mutex::new(config.clone())))
             .data(tx.clone())
             .wrap(middleware::Logger::default())
             .service(

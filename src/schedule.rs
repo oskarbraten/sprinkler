@@ -50,7 +50,6 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
     let mut open = false;
 
     loop {
-
         // Receive updated config.
         match recv.try_recv() {
             Ok(updated_config) => {
@@ -58,7 +57,6 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
 
                 if open {
                     // Configuration was updated. Schedule may have changed, deactivate pin.
-
                     #[cfg(not(debug_assertions))]
                     pin.set_low();
                     
@@ -73,33 +71,32 @@ pub fn scheduler(mut config: Configuration, recv: Receiver<Configuration>, tickr
 
         let now = Moment::now();
         
-        if config.enabled {
+        let in_interval = config.schedule.in_interval(now);
 
-            let in_interval = config.schedule.in_interval(now);
-            if in_interval && !open {
-                open = true;
+        if config.overwrite {
+            open = true;
+            #[cfg(not(debug_assertions))]
+            pin.set_high();
 
-                #[cfg(not(debug_assertions))]
-                pin.set_high();
-                
-                println!("Activated pin: {}", config.schedule.id);
+            println!("Activated pin {}, overwrite enabled.", config.schedule.id);
+        } else if in_interval && !open {
+            open = true;
 
-            } else if !in_interval && open {
-                open = false;
+            #[cfg(not(debug_assertions))]
+            pin.set_high();
+            
+            println!("Activated pin: {}", config.schedule.id);
+        } else if !in_interval && open {
+            open = false;
 
-                #[cfg(not(debug_assertions))]
-                pin.set_low();
+            #[cfg(not(debug_assertions))]
+            pin.set_low();
 
-                println!("Deactivated pin: {}", config.schedule.id);
-            }
-
-            #[cfg(debug_assertions)]
-            println!("Open: {}", open);
-
-        } else {
-            #[cfg(debug_assertions)]
-            println!("Sprinkler is disabled, zZzzZ...");
+            println!("Deactivated pin: {}", config.schedule.id);
         }
+
+        #[cfg(debug_assertions)]
+        println!("Open: {}", open);
 
         let t = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().subsec_millis() as u64 % tickrate;
         thread::sleep(Duration::from_millis(tickrate - t));

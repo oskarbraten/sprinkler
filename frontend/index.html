@@ -4,6 +4,7 @@
 <head>
     <title>Sprinkler</title>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="./js/vue.js"></script>
     <link rel="stylesheet" href="./css/bootstrap.min.css">
 </head>
@@ -18,62 +19,62 @@
             </div>
             <div class="row pt-2">
                 <div class="col">
-                    <p>
-                        <span class="text-success" v-if="enabled">The irrigation system is enabled.</span>
-                        <span class="text-secondary" v-else>The irrigation system is disabled.</span>
-                    </p>
-                </div>
-            </div>
-            <div class="row pt-2">
-                <div class="col">
-                    <h4>Settings</h4>
 
-                    <div class="form-group form-check mt-3">
-                        <input id="enabled-checkbox" type="checkbox" class="form-check-input"
-                            v-model="configuration.enabled">
-                        <label class="form-check-label" for="enabled-checkbox">Enabled</label>
+                    <p>You can press this button to manually open and close the valve. Remember to close it once you're
+                        done.</p>
+                    <div class="form-group mb-5">
+                        <button id="overwrite-button" type="button" class="btn btn-secondary btn-lg"
+                            v-if="!configuration.overwrite" v-on:click="toggle" style="width: 100%">Open valve</button>
+                        <button id="overwrite-button" type="button" class="btn btn-primary btn-lg" v-else
+                            v-on:click="toggle" style="width: 100%">Close valve</button>
                     </div>
 
-                    <h5>Watering schedule</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th scope="col">From</th>
-                                    <th scope="col">To</th>
-                                    <th scope="col" colspan="2">Duration</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr v-for="(event, index) in configuration.schedule.events">
-                                    <td scope="row">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h5>Watering schedule</h5>
+                        <button type="button" class="btn btn-outline-secondary" v-on:click="add">Add interval</button>
+                    </div>
+
+                    <div>
+                        <div class="card mb-3" style="width: 100%"
+                            v-for="(event, index) in configuration.schedule.events">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="card-title mb-1">Interval #{{index + 1}}</h5>
+                                        <h6 class="card-subtitle mb-2 text-muted">Duration - <duration
+                                                :from="event.from" :to="event.to"></duration>
+                                        </h6>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-secondary"
+                                        v-on:click="remove(index)">Remove</button>
+                                </div>
+                            </div>
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" style="width: 4rem">From</span>
+                                        </div>
                                         <input class="form-control" :id="'from-' + index" :name="'from-' + index"
-                                            type="time" step="1" v-model="event.from">
-                                    </td>
-                                    <td scope="row">
+                                            type="time" step="1" v-model="event.from" v-on:change="notifyChange">
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text" style="width: 4rem">To</span>
+                                        </div>
                                         <input class="form-control" :id="'to-' + index" :name="'to-' + index"
-                                            type="time" step="1" v-model="event.to">
-                                    </td>
-                                    <td scope="row" class="align-middle text-justify">
-                                        <duration :from="event.from" :to="event.to"></duration>
-                                    </td>
-                                    <td scope="row" class="text-right">
-                                        <button type="button" class="btn btn-outline-secondary"
-                                            v-on:click="remove(index)">Remove</button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                            <tfoot>
-                                <tr>
-                                    <td colspan="4" class="text-right">
-                                        <button type="button" class="btn btn-outline-success" v-on:click="add">Add new</button>
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
+                                            type="time" step="1" v-model="event.to" v-on:change="notifyChange">
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-primary" v-on:click="update">Save settings</button>
+
+                    <div class="form-group my-3">
+                        <button type="button" class="btn btn-success btn-lg" style="width: 100%" v-on:click="update"
+                            v-if="changed">Save changes</button>
                     </div>
                 </div>
             </div>

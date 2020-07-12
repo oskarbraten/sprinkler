@@ -38,7 +38,7 @@ const app = new Vue({
     el: '#app',
     data: {
         connected: false,
-        enabled: false,
+        changed: false,
         configuration: {},
         async getConfiguration() {
             let response = await fetch(URL);
@@ -55,6 +55,8 @@ const app = new Vue({
         setConfiguration(configuration) {
             // Deep-clone to avoid mutating state.
             configuration = JSON.parse(JSON.stringify(configuration));
+
+            console.log(configuration.overwrite);
 
             configuration.schedule.events = configuration.schedule.events.map(({ from, to }) => ({
                 from: timeToMs(from),
@@ -75,8 +77,6 @@ const app = new Vue({
             .then(configuration => {
                 this.connected = true;
                 this.configuration = configuration;
-
-                this.enabled = this.configuration.enabled;
             })
             .catch(error => {
                 console.log(error);
@@ -87,15 +87,25 @@ const app = new Vue({
             this.setConfiguration(this.configuration)
                 .then(_ => {
                     console.log("Configuration updated..");
-                    this.enabled = this.configuration.enabled;
+                    this.changed = false;
                 })
                 .catch(error => console.log(error));
         },
         add() {
             this.configuration.schedule.events.push({ from: '10:00:00', to: '10:00:30' });
+            this.changed = true;
         },
         remove(index) {
             this.configuration.schedule.events.splice(index, 1);
+            this.changed = true;
+        },
+        toggle() {
+            this.configuration.overwrite = !this.configuration.overwrite;
+
+            this.update();
+        },
+        notifyChange() {
+            this.changed = true;
         }
     }
 });

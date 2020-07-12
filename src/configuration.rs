@@ -8,14 +8,14 @@ use super::time::{Interval, Moment};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Configuration {
-    pub enabled: bool,
-    pub schedule: Schedule,
+    pub overwrite: bool,
+    pub schedule: Schedule
 }
 
 impl Configuration {
     pub fn default() -> Self {
         Configuration {
-            enabled: false,
+            overwrite: false,
             schedule: Schedule {
                 id: 17,
                 events: vec![
