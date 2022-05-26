@@ -8,7 +8,8 @@ function msToTime(ms) {
 }
 
 function timeToMs(time) {
-    const [h, m, s] = time.split(':').map(parseFloat);
+    const [h, m, s = 0] = time.split(':').map(parseFloat);
+    
     return (h * 60 * 60 * 1000) + (m * 60 * 1000) + (s * 1000);
 }
 

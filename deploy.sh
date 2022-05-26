@@ -1,6 +1,6 @@
 #!/bin/sh
 
-TARGET=pi@192.168.1.12
+TARGET=pi@192.168.1.10
 
 echo "Deployment target: $TARGET"
 
